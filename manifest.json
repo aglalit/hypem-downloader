@@ -1,0 +1,36 @@
+{
+  "manifest_version": 2,
+
+  "name": "HypeMachine Downloader",
+  "description": "Download music directly from hypem.com playlist.",
+  "version": "1.0",
+  "minimum_chrome_version": "16.0.884",
+
+  "icons": { "16": "icon16.png",
+           "48": "icon48.png",
+          "128": "icon128.png" },
+
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://hypem.com/*"],
+      "js": ["download_buttons.js"],
+      "run_at":    "document_end"
+    }
+  ],
+
+  "externally_connectable": {
+  "matches": ["*://hypem.com/*"]
+},
+
+  "web_accessible_resources" : ["inject_script.js"],
+
+  "permissions": [
+      "activeTab",
+      "downloads"
+  ]
+}
