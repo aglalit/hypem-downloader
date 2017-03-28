@@ -208,7 +208,7 @@ window.update_page_contents = function() {
         }
 
         animate_page_elements();
-        setup_chat(); // only on Stack pages for now
+        //setup_chat(); // only on Stack pages for now
 
         // hacks //
         if (location.href.match(/hypeon/)) {
@@ -281,43 +281,8 @@ window.update_page_contents = function() {
 window.addDownloadLinks = function() {
   var contentContainers = $('#content-wrapper').children('div');
   var tracksArray = $(contentContainers[contentContainers.length - 1]).find(".section-track");
-  var buttonText = 'DOWNLOAD';
-  setTrackUrl = function() {
-    var req_data, attempt = 0,
-      type = 0;
 
-    var req_url = '/serve/source/' + trackId + '/' + keyCode;
-
-    if (trackId && trackId.match(/^(yt_|vm_)/i)) {
-      //            unload_video_players();
-      console.log("This is video, not audio");
-      return false;
-    }
-
-    var r = $.ajax({
-      url: req_url,
-      data: req_data,
-      type: 'get',
-      async: false,
-      cache: false,
-      dataType: 'json',
-      error: function() {
-        console.log('Track /source/ request FAILED');
-        //buttonText = 'FAILED';
-        return false;
-      }
-    });
-
-    try {
-      var response = JSON.parse(r.responseText);
-      downloadUrl = response.url;
-    } catch (err) {
-      console.log("FAILED to parse JSON data");
-      return false;
-    }
-  };
-  ////////////////////////////////
-  for (var tools, downloadUrl, keyCode, i = 0; i < tracksArray.length; i++) {
+  for (var tools, downloadUrl, keyCode, i = 0; i < tracksArray.length;i++) {
     if (!tracksArray[i].className || tracksArray[i].className.match(/placeholder/)) i++;
     else {
       var trackId = tracksArray[i].getAttribute("data-itemid");
@@ -326,8 +291,13 @@ window.addDownloadLinks = function() {
           keyCode = window.displayList.tracks[k].key;
         }
       }
+      var req_url = '/serve/source/' + trackId + '/' + keyCode;
 
-      setTrackUrl();
+      if (trackId && trackId.match(/^(yt_|vm_)/i)) {
+        //            unload_video_players();
+        console.log("This is video, not audio");
+        i++;
+      }
       var trackTitle = tracksArray[i].getElementsByClassName('artist')[0].innerHTML + ' - ' +
         tracksArray[i].getElementsByClassName('base-title')[0].innerHTML;
       trackTitle = trackTitle.replace(/&amp;/, '&');
@@ -339,19 +309,40 @@ window.addDownloadLinks = function() {
         var downloadButton = document.createElement('button');
         downloadButton.setAttribute('style', 'height:22px; outline:0');
         downloadButton.id = trackTitle;
-        downloadButton.setAttribute('url', downloadUrl);
+        downloadButton.setAttribute('url', req_url);
         downloadButton.addEventListener('click', function() {
-          window.postMessage(this.getAttribute('url') + '{{{}}}' + this.id, 'http://hypem.com');
+          console.log($("button:focus").attr('url'));
+          var r = $.ajax({
+            url: $("button:focus").attr('url'),
+            data: undefined,
+            type: 'get',
+            async: false,
+            cache: false,
+            dataType: 'json',
+            error: function() {
+              $("button:focus").html = '<span>FAILED</span>';
+              return false;
+            }
+          });
+          try {
+            var response = JSON.parse(r.responseText);
+            downloadUrl = response.url;
+          } catch (err) {
+            console.log("FAILED to parse JSON data");
+            return false;
+          }
+          window.postMessage(downloadUrl + '{{{}}}' + this.id, 'http://hypem.com');
         });
-        downloadButton.innerHTML = '<span>' + buttonText + '</span>';
+        downloadButton.innerHTML = '<span>DOWNLOAD</span>';
         downloadDiv.appendChild(downloadButton);
         tracksArray[i].appendChild(downloadDiv);
       }
     }
   }
-  console.log("addDownloadLinks() called");
+
 };
 
-window.setTimeout(function() {
-  addDownloadLinks();
-}, 1000);
+  window.onload = function(){
+    addDownloadLinks();
+    console.log("addDownloadLinks() called")
+  }

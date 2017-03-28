@@ -1,11 +1,8 @@
 {
   "manifest_version": 2,
-
   "name": "HypeMachine Downloader",
-  "description": "Download music directly from hypem.com playlist.",
-  "version": "1.0",
-  "minimum_chrome_version": "16.0.884",
-
+  "description": "Download music directly from the Hypemachine's playlist.",
+  "version": "1.1.5",
   "icons": { "16": "icon16.png",
            "48": "icon48.png",
           "128": "icon128.png" },
